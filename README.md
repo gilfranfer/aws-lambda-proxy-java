@@ -2,7 +2,7 @@
 
 [Serverless](https://www.serverless.com/framework/docs/getting-started/) is a node.js based framework that facilitates creating, deploying, and managing serverless functions regardless the Cloud Provider. In this tutorial we will be using AWS.
 
-## Pre-requisites
+# Pre-requisites
 
 1. Install [node js and npm.](https://nodejs.org/en/download/)
 2. Have a JDK installation on your system.
@@ -33,14 +33,15 @@
 `aws --version`
 
 
-## Install Serverless Framework
+# Install and Setup Serverless Framework
 
 You can install using npm
 `npm install -g serverless`
 
-And confirm your framework version, after installation is complete, with the command `serverless -v`
+And confirm your framework version, after installation is complete, with the command
+`serverless -v`
 
-## Setup the AWS User for Serverless Framework
+## Create the AWS User for Serverless Framework
 
 As we are going to work with AWS, we need to have an Account. Serverless needs to use AWS credentials for an IAM user, so we recommend creating a User with no access, and we can add permissions as we go. This can be done manually using the [AWS IAM Console](https://console.aws.amazon.com/iamv2/home#/home), or via CloudFormation Stack.
 
@@ -101,3 +102,20 @@ If you already have your *AWS CLI* configured with: *a)* an AWS Root Account (no
 
 - If you want to check for only specific Output key, like UserSecretKey:
 `aws cloudformation describe-stacks --stack-name serverless-fmwk-iam --query "Stacks[0].Outputs[?OutputKey=='UserSecretKey'].OutputValue" --output text`
+
+
+## Setup Serverless Framework for AWS
+
+Going back to the console (Powershell), we provide the AWS credentials to Serverless Framework and setup a new AWS User profile.
+
+`serverless config credentials --provider aws --key <key> --secret <secret> --profile <profile to be created> --overwrite`
+
+NOTE: AWS User Profiles are stored in the credentials file under aws folder.
+
+`ls ~/.aws/credentials`
+
+# Create the Java Project
+
+This example will generate scaffolding for a service (named java-lambda-service) with AWS as a provider and Java as runtime. The scaffolding will be generated in the specified directory (java-demo-project). This directory will be created if not present. Otherwise Serverless will use the already present directory. Your new service will have a default stage called dev and a default region inside that stage called us-east-1.
+
+`serverless create --template aws-java-maven --name java-lambda-service --path java-demo-project`
