@@ -54,24 +54,9 @@ As we are going to work with AWS, we need to have an Account. Serverless needs t
 6. Keep clicking Next until step 4 where you see the User details, and push the "Create user" button.
 7. Take note of the AccessKey and SecretAccessKey. Then click "Close".
 8. Once you are back on the Users section, click on the recently created user, and add the following "Inline Policy" to allow control on CloudFormation from Serverless Framework:
-
-```
-{
-"Version": "2012-10-17",
-"Statement": [
-    {
-        "Sid": "Stmt1488265872000",
-        "Effect": "Allow",
-        "Action": [
-            "cloudformation:*"
-        ],
-        "Resource": [
-            "*"
-        ]
-    }
-]
-}
-```  
+`{ "Version": "2012-10-17", "Statement": [ { "Sid": "serverless01", "Effect": "Allow", "Action": "cloudformation:*", "Resource": "*" } ] }`
+9. Create anothe inline Policy for Lambda:
+`{ "Version": "2012-10-17", "Statement": [ { "Sid": "serverless02", "Effect": "Allow", "Action": "lambda:*", "Resource": "*" } ] `
 
 
 ### Via CloudFormation Stack
@@ -108,7 +93,7 @@ If you already have your *AWS CLI* configured with: *a)* an AWS Root Account (no
 
 Going back to the console (Powershell), we provide the AWS credentials to Serverless Framework and setup a new AWS User profile.
 
-`serverless config credentials --provider aws --key <key> --secret <secret> --profile <profile to be created> --overwrite`
+`serverless config credentials --provider aws --key <key> --secret <secret> --profile serverlessUser --overwrite`
 
 NOTE: AWS User Profiles are stored in the credentials file under aws folder.
 
@@ -119,3 +104,27 @@ NOTE: AWS User Profiles are stored in the credentials file under aws folder.
 This example will generate scaffolding for a service (named java-lambda-service) with AWS as a provider and Java as runtime. The scaffolding will be generated in the specified directory (java-demo-project). This directory will be created if not present. Otherwise Serverless will use the already present directory. Your new service will have a default stage called dev and a default region inside that stage called us-east-1.
 
 `serverless create --template aws-java-maven --name java-lambda-service --path java-demo-project`
+
+- Move to the created directory (java-demo-project)
+`cd java-demo-project`
+
+- Get information about your deployed service
+`serverless info --aws-profile serverlessUser`
+
+# Deploy the Stack
+
+Since deployment of the stack is essentially setting up our lambda function, we need to create the artifact first (jar).
+`mvn clean install`
+
+Now that we have the artifact in target folder, we can go ahead deploy it.
+`serverless deploy --aws-profile serverlessUser`
+
+You can check the AWS CloudFormation section in the Console to view details of the stack that has just been created.
+
+# Invoking the function
+
+We can invoke the function from the CLI, using the following command
+`serverless invoke --function hello --aws-profile serverlessUser`
+
+Additionally, we can pass an input (formatted for Powershell)
+`serverless invoke --function hello --aws-profile serverlessUser --data '{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"}'`
