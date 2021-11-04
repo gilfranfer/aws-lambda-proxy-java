@@ -285,15 +285,15 @@ Use the Endpoints to test the services. Remember to replace the {user_id} with a
 
 *POST*
 On cmd:
-`curl -X POST  https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages -d "{\"message_id\":\"msg003\",\"text\":\"thirdattempt!\"}"`
+`curl -X POST  https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages -d "{\"message_id\":\"msg003\",\"text\":\"thirdattempt!\"}"`
 
 On Powershell:
-`Invoke-WebRequest https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages  -Method POST -Body '{"message_id":"msg001","text":"Hello from Powershell"}'`
+`Invoke-WebRequest https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages  -Method POST -Body '{"message_id":"msg001","text":"Hello from Powershell"}'`
 
 *GET*
 
 On cmd
-`curl https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages`
+`curl https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages`
 
 On Powershell (Method and OutFile can be omitted):
-`Invoke-WebRequest https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages -Method GET -OutFile response.txt`
+`Invoke-WebRequest https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages -Method GET -OutFile response.txt`
