@@ -50,7 +50,7 @@ As we are going to work with AWS, we need to have an Account. Serverless needs t
 2. Search for "Users" option under the "Access Management" menu, on the left panel.
 3. Click the "Add users" button (top right).
 4. Provide a User name, and Select AWS Access type as "Access key - Programmatic access".
-5. Select "Create Group", provide a name, and select the following Policies: AmazonS3FullAccess, CloudWatchLogsFullAccess, IAMFullAccess.
+5. Select "Create Group", provide a name, and select the following Policies: AmazonS3FullAccess, CloudWatchLogsFullAccess, IAMFullAccess, AmazonDynamoDBFullAccess.
 6. Keep clicking Next until step 4 where you see the User details, and push the "Create user" button.
 7. Take note of the AccessKey and SecretAccessKey. Then click "Close".
 8. Once you are back on the Users section, click on the recently created user, and add the following "Inline Policy" to allow control on CloudFormation from Serverless Framework:
@@ -134,3 +134,118 @@ To check the generated logs:
 
 And to see the function metrics:
 `serverless metrics --function hello --aws-profile serverlessUser`
+
+
+# Moving to IntelliJ
+
+In IntelliJ, click Open, then select the pom.xml and pick Open as Project.
+
+# Messaging API
+
+We are going to update our current demo service to create a basic API with DynamoDB as the persistency layer, and make it available via Amazon API Gateway.
+
+## Update Artifact
+Change the pom.xml from
+
+```
+  <groupId>com.serverless</groupId>
+  <artifactId>hello</artifactId>
+  <packaging>jar</packaging>
+  <version>dev</version>
+  <name>hello</name>
+```
+to
+
+```
+  <groupId>com.serverless</groupId>
+  <artifactId>messaging-api</artifactId>
+  <packaging>jar</packaging>
+  <version>dev</version>
+  <name>messaging-api</name>
+```
+
+## Add DynamoDB
+In order to introduce DynamoDB, add the Dependency in pom.xml:
+
+```
+<dependency>
+  <groupId>com.amazonaws</groupId>
+  <artifactId>aws-java-sdk-dynamodb</artifactId>
+  <version>1.11.119</version>
+</dependency>
+```
+
+Serverless takes care of creating a basic lambda execution role, however, it only has CloudWatch Log permissions. So let us add permissions for DynamoDB in the `serverless.yml`, under `provider` section:
+
+```
+iamRoleStatements:
+   - Effect: "Allow"
+     Action:
+       - "dynamodb:*"
+     Resource: "*"
+```
+
+To create the DynamoDB Table we can insert a CloudFormation resource template at the end of the `serverless.yml` file:
+```
+resources:
+  Resources:
+    messagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: messages_table
+        AttributeDefinitions:
+          - AttributeName: user_id
+            AttributeType: S
+          - AttributeName: message_date
+            AttributeType: S
+        KeySchema:
+          - AttributeName: user_id
+            KeyType: HASH
+          - AttributeName: message_date
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+```
+
+### DynamoDB POJO and Adapter
+
+The POJO will represent the DynamoDB Item, and the Adapter will help us to communicate with DynamoDB. The code is available in the project within this repository
+- java-demo-project/src/main/java/com/serverless/data/Message.java
+- java-demo-project/src/main/java/com/serverless/db/Adapter.java
+- java-demo-project/src/main/java/com/serverless/db/DynamoAdapter.java
+
+## Code the Handler functions
+
+For this API we are going to use two Handlers: GetMessagesHandler and PostMessagesHandler, so we need to define them on the `serverless.yml` file:
+
+```
+  artifact: target/hello-dev.jar
+
+functions:
+  hello:
+    handler: com.serverless.Handler
+```
+
+to
+```
+  artifact: target/messaging-api-dev.jar
+
+functions:
+  get-messages:
+    handler: com.serverless.GetMessagesHandler
+  post-message:
+    handler: com.serverless.PostMessageHandler
+```
+
+You can find the code here for the previously created handlers within this repository:
+- java-demo-project/src/main/java/com/serverless/GetMessagesHandler.java
+- java-demo-project/src/main/java/com/serverless/PostMessageHandler.java
+
+## Deploying the changes
+
+Re-create the artifact.
+`mvn clean install`
+
+Now that we have the artifact in target folder, we can go ahead deploy it.
+`serverless deploy --aws-profile serverlessUser`
