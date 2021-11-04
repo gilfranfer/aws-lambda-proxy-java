@@ -9,7 +9,8 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/CloudWatchFullAccess
         - arn:aws:iam::aws:policy/IAMFullAccess
-        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess #If you are planning to use DynamoDB
+        - arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator #In case you want to do Lambda Proxy Integration (API Gateway+Lambda)
       Policies:
         - PolicyName: cloudformation-full-policy
           PolicyDocument: { "Version": "2012-10-17", "Statement": [ { "Sid": "serverless01", "Effect": "Allow", "Action": "cloudformation:*", "Resource": "*" } ] }
