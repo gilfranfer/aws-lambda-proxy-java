@@ -128,3 +128,9 @@ We can invoke the function from the CLI, using the following command
 
 Additionally, we can pass an input (formatted for Powershell)
 `serverless invoke --function hello --aws-profile serverlessUser --data '{\"key1\":\"value1\",\"key2\":\"value2\",\"key3\":\"value3\"}'`
+
+To check the generated logs:
+`serverless logs --function hello --aws-profile serverlessUser`
+
+And to see the function metrics:
+`serverless metrics --function hello --aws-profile serverlessUser`
