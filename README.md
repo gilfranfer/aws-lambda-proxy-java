@@ -50,7 +50,7 @@ As we are going to work with AWS, we need to have an Account. Serverless needs t
 2. Search for "Users" option under the "Access Management" menu, on the left panel.
 3. Click the "Add users" button (top right).
 4. Provide a User name, and Select AWS Access type as "Access key - Programmatic access".
-5. Select "Create Group", provide a name, and select the following Policies: AmazonS3FullAccess, CloudWatchLogsFullAccess, IAMFullAccess, AmazonDynamoDBFullAccess.
+5. Select "Create Group", provide a name, and select the following Policies: AmazonS3FullAccess, CloudWatchLogsFullAccess, IAMFullAccess, AmazonDynamoDBFullAccess. If you want to do Lambda Proxy Integration (API Gateway+Lambda) then you need to add AmazonAPIGatewayAdministrator policy too.
 6. Keep clicking Next until step 4 where you see the User details, and push the "Create user" button.
 7. Take note of the AccessKey and SecretAccessKey. Then click "Close".
 8. Once you are back on the Users section, click on the recently created user, and add the following "Inline Policy" to allow control on CloudFormation from Serverless Framework:
@@ -136,13 +136,16 @@ And to see the function metrics:
 `serverless metrics --function hello --aws-profile serverlessUser`
 
 
-# Moving to IntelliJ
+** Up to this point, we have created an AWS Lambda Function with Java. In the following steps we will create an API that we can expose with AWS API Gateway **
 
-In IntelliJ, click Open, then select the pom.xml and pick Open as Project.
 
 # Messaging API
 
 We are going to update our current demo service to create a basic API with DynamoDB as the persistency layer, and make it available via Amazon API Gateway.
+
+## Moving to IntelliJ
+
+In IntelliJ, click Open, then select the pom.xml and pick Open as Project.
 
 ## Update Artifact
 Change the pom.xml from
@@ -242,10 +245,55 @@ You can find the code here for the previously created handlers within this repos
 - java-demo-project/src/main/java/com/serverless/GetMessagesHandler.java
 - java-demo-project/src/main/java/com/serverless/PostMessageHandler.java
 
-## Deploying the changes
+## Deploying the Functions
 
 Re-create the artifact.
 `mvn clean install`
 
 Now that we have the artifact in target folder, we can go ahead deploy it.
 `serverless deploy --aws-profile serverlessUser`
+
+## Define API Endpoints
+
+Now that we have our two functions deployed, we could use an API Gateway to trigger them. The Amazon API Gateway is a service that lets us expose many supported AWS offerings via RESTful API over HTTP. The API Gateway invocation is one of the many events supported by AWS Lambda; hence, we can define `http` as the event under the function definition in  `serverless.yml`. Update the handler section for the two functions:
+
+```
+get-messages:
+    handler: com.serverless.GetMessagesHandler
+    events:
+      - http:
+          path: /messaging/{user_id}/messages
+          method: get
+
+  post-message:
+    handler: com.serverless.PostMessageHandler
+    events:
+      - http:
+          path: /messaging/{user_id}/messages
+          method: post
+```
+
+Re-deploy the Project
+`mvn clean install`
+`serverless deploy --aws-profile serverlessUser`
+
+Once the deploy is completed, you will see the Endpoints for both methods (GET and POST).
+
+## Testing the Endpoints
+
+Use the Endpoints to test the services. Remember to replace the {user_id} with any mock data. For example:
+
+*POST*
+On cmd:
+`curl -X POST  https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages -d "{\"message_id\":\"msg003\",\"text\":\"thirdattempt!\"}"`
+
+On Powershell:
+`Invoke-WebRequest https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages  -Method POST -Body '{"message_id":"msg001","text":"Hello from Powershell"}'`
+
+*GET*
+
+On cmd
+`curl https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages`
+
+On Powershell (Method and OutFile can be omitted):
+`Invoke-WebRequest https://g6powi71l8.execute-api.us-east-1.amazonaws.com/dev/messaging/u123/messages -Method GET -OutFile response.txt`
