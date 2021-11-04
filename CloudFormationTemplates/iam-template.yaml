@@ -7,7 +7,7 @@ Resources:
       GroupName: !Join [ "-", [ "ServerlessFmwkGroup", !Ref AWS::Region] ]
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
         - arn:aws:iam::aws:policy/IAMFullAccess
       Policies:
         - PolicyName: cloudformation-full-policy
