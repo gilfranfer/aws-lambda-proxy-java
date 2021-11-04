@@ -26,7 +26,7 @@ public class DynamoAdapter implements Adapter{
     private DynamoAdapter() {
         client = AmazonDynamoDBClientBuilder.standard().withEndpointConfiguration(
                         new AwsClientBuilder.EndpointConfiguration(SERVICE_ENDPOINT, SERVICE_REGION)).build();
-        LOG.info("DynamoDB client Created!");
+        //LOG.info("DynamoDB client Created!");
     }
 
     public static DynamoAdapter getInstance(){
