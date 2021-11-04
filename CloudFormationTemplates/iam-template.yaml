@@ -10,8 +10,10 @@ Resources:
         - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
         - arn:aws:iam::aws:policy/IAMFullAccess
       Policies:
-        - PolicyName: serverless-cloudformation-policy
-          PolicyDocument: { "Version": "2012-10-17", "Statement": [ { "Sid": "VisualEditor0", "Effect": "Allow", "Action": "cloudformation:*", "Resource": "*" } ] }
+        - PolicyName: cloudformation-full-policy
+          PolicyDocument: { "Version": "2012-10-17", "Statement": [ { "Sid": "serverless01", "Effect": "Allow", "Action": "cloudformation:*", "Resource": "*" } ] }
+        - PolicyName: lambda-full-policy
+          PolicyDocument: { "Version": "2012-10-17", "Statement": [ { "Sid": "serverless02", "Effect": "Allow", "Action": "lambda:*", "Resource": "*" } ] }
   ServerlessFmwkUser:
     Type: 'AWS::IAM::User'
     Properties:
